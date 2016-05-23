@@ -32,4 +32,7 @@
 <resources>
     <string name="app_name">Multi MetaWear Demo</string>
     <string name="action_settings">Settings</string>
+    <string name="text_released">Released</string>
+    <string name="text_pressed">Pressed</string>
+    <string name="text_orientation">Orientation</string>
 </resources>

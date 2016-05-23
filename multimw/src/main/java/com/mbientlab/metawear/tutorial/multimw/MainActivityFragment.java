@@ -31,23 +31,156 @@
 
 package com.mbientlab.metawear.tutorial.multimw;
 
+import android.bluetooth.BluetoothDevice;
+import android.content.ComponentName;
+import android.content.ServiceConnection;
+import android.os.Handler;
+import android.os.IBinder;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
+
+import com.mbientlab.metawear.AsyncOperation;
+import com.mbientlab.metawear.Message;
+import com.mbientlab.metawear.MetaWearBleService;
+import com.mbientlab.metawear.MetaWearBoard;
+import com.mbientlab.metawear.RouteManager;
+import com.mbientlab.metawear.UnsupportedModuleException;
+import com.mbientlab.metawear.module.Accelerometer;
+import com.mbientlab.metawear.module.Debug;
+import com.mbientlab.metawear.module.Switch;
+
+import java.util.HashMap;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment {
+public class MainActivityFragment extends Fragment implements ServiceConnection {
+    private final Handler taskScheduler;
+    private final HashMap<DeviceState, MetaWearBoard> stateToBoards;
+    private MetaWearBleService.LocalBinder binder;
+
+    private ConnectedDevicesAdapter connectedDevices= null;
 
     public MainActivityFragment() {
+        stateToBoards = new HashMap<>();
+        taskScheduler= new Handler();
+    }
+
+    public void addNewDevice(BluetoothDevice btDevice) {
+        final DeviceState newDeviceState= new DeviceState(btDevice);
+        final MetaWearBoard newBoard= binder.getMetaWearBoard(btDevice);
+
+        stateToBoards.put(newDeviceState, newBoard);
+        newBoard.setConnectionStateHandler(new MetaWearBoard.ConnectionStateHandler() {
+            @Override
+            public void connected() {
+                connectedDevices.add(newDeviceState);
+
+                try {
+                    newBoard.getModule(Switch.class).routeData().fromSensor().stream("switch_stream").commit()
+                            .onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
+                                @Override
+                                public void success(RouteManager result) {
+                                    result.subscribe("switch_stream", new RouteManager.MessageHandler() {
+                                        @Override
+                                        public void process(Message msg) {
+                                            newDeviceState.pressed = msg.getData(Boolean.class);
+                                            connectedDevices.notifyDataSetChanged();
+                                        }
+                                    });
+                                }
+                            });
+                    final Accelerometer accelModule= newBoard.getModule(Accelerometer.class);
+                    accelModule.routeData().fromOrientation().stream("orientation_stream").commit()
+                            .onComplete(new AsyncOperation.CompletionHandler<RouteManager>() {
+                                @Override
+                                public void success(RouteManager result) {
+                                    result.subscribe("orientation_stream", new RouteManager.MessageHandler() {
+                                        @Override
+                                        public void process(Message msg) {
+                                            newDeviceState.deviceOrientation = msg.getData(Accelerometer.BoardOrientation.class).toString();
+                                        }
+                                    });
+                                    accelModule.enableOrientationDetection();
+                                    accelModule.start();
+                                }
+                            });
+                } catch (UnsupportedModuleException e) {
+                    Snackbar.make(getActivity().findViewById(R.id.activity_main_layout), e.getLocalizedMessage(), Snackbar.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void disconnected() {
+                connectedDevices.remove(newDeviceState);
+            }
+
+            @Override
+            public void failure(int status, Throwable error) {
+                connectedDevices.remove(newDeviceState);
+            }
+        });
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        connectedDevices= new ConnectedDevicesAdapter(getActivity(), R.id.metawear_status_layout);
+        connectedDevices.setNotifyOnChange(true);
+        setRetainInstance(true);
         return inflater.inflate(R.layout.fragment_main, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        ListView connectedDevicesView= (ListView) view.findViewById(R.id.connected_devices);
+        connectedDevicesView.setAdapter(connectedDevices);
+        connectedDevicesView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view,
+                                           int position, long id) {
+                DeviceState current= connectedDevices.getItem(position);
+                final MetaWearBoard selectedBoard= stateToBoards.get(current);
+
+                try {
+                    Accelerometer accelModule = selectedBoard.getModule(Accelerometer.class);
+                    accelModule.stop();
+                    accelModule.disableOrientationDetection();
+
+                    selectedBoard.removeRoutes();
+                    selectedBoard.getModule(Debug.class).disconnect();
+                } catch (UnsupportedModuleException e) {
+                    // Not a big deal if the try catch fails
+                    Log.w("multimw", e);
+
+                    taskScheduler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            selectedBoard.disconnect();
+                        }
+                    }, 100);
+                }
+
+                connectedDevices.remove(current);
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        binder= (MetaWearBleService.LocalBinder) service;
+        binder.executeOnUiThread();
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+
     }
 }

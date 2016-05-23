@@ -31,6 +31,7 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/metawear_status_layout"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
@@ -39,17 +40,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Device Name"
-        android:id="@+id/textView"/>
+        android:id="@+id/status_device_name"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="MAC Address"
-        android:id="@+id/textView2"/>
+        android:id="@+id/status_mac_address"/>
 
     <RadioGroup
+        android:id="@+id/status_button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
@@ -60,11 +60,10 @@
             android:layout_weight="1"
             android:gravity="center" >
 
-            <RadioButton
+            <RadioButton android:id="@+id/switch_radio_pressed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Pressed"
-                android:id="@+id/radioButton"
+                android:text="@string/text_pressed"
                 android:checked="false" />
         </LinearLayout>
 
@@ -74,11 +73,10 @@
             android:layout_weight="1"
             android:gravity="center" >
 
-            <RadioButton
+            <RadioButton android:id="@+id/switch_radio_released"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Released"
-                android:id="@+id/radioButton2"
+                android:text="@string/text_released"
                 android:checked="false" />
             </LinearLayout>
     </RadioGroup>
@@ -87,7 +85,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Orientation"
-        android:id="@+id/textView3"
+        android:text="@string/text_orientation"
+        android:id="@+id/status_orientation"
         android:layout_gravity="center_horizontal"/>
 </LinearLayout>

@@ -29,32 +29,27 @@
  * contact MbientLab Inc, at www.mbientlab.com.
  */
 
-apply plugin: 'com.android.application'
+package com.mbientlab.metawear.tutorial.multimw;
 
-android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+import android.bluetooth.BluetoothDevice;
 
-    defaultConfig {
-        applicationId "com.mbientlab.metawear.tutorial.multimw"
-        minSdkVersion 18
-        targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+/**
+ * Created by etsai on 5/22/2016.
+ */
+public class DeviceState {
+    public final BluetoothDevice btDevice;
+    public String deviceOrientation;
+    public boolean pressed;
+
+    public DeviceState(BluetoothDevice btDevice) {
+        this.btDevice= btDevice;
+        this.deviceOrientation= "";
+        pressed= false;
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-}
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile 'com.mbientlab:metawear:2.5.9'
-    compile 'com.mbientlab.bletoolbox:scanner:0.2.0'
-    compile 'com.android.support:appcompat-v7:23.4.0'
-    compile 'com.android.support:design:23.4.0'
+    @Override
+    public boolean equals(Object obj) {
+        return (obj == this) ||
+                ((obj instanceof DeviceState) && btDevice.equals(((DeviceState) obj).btDevice));
+    }
 }
