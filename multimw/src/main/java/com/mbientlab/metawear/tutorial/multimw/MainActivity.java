@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
             case REQUEST_START_BLE_SCAN:
                 BluetoothDevice selectedDevice= data.getParcelableExtra(ScannerActivity.EXTRA_DEVICE);
                 if (selectedDevice != null) {
-                    ((MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.scanner_fragment)).addNewDevice(selectedDevice);
+                    ((MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.main_activity_content)).addNewDevice(selectedDevice);
                 }
                 break;
         }

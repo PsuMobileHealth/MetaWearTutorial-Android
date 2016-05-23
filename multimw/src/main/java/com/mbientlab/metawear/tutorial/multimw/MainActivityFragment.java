@@ -31,11 +31,15 @@
 
 package com.mbientlab.metawear.tutorial.multimw;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -73,6 +77,23 @@ public class MainActivityFragment extends Fragment implements ServiceConnection 
         taskScheduler= new Handler();
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Activity owner= getActivity();
+        owner.getApplicationContext().bindService(new Intent(owner, MetaWearBleService.class), this, Context.BIND_AUTO_CREATE);
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        getActivity().getApplicationContext().unbindService(this);
+    }
+
+
     public void addNewDevice(BluetoothDevice btDevice) {
         final DeviceState newDeviceState= new DeviceState(btDevice);
         final MetaWearBoard newBoard= binder.getMetaWearBoard(btDevice);
@@ -106,6 +127,7 @@ public class MainActivityFragment extends Fragment implements ServiceConnection 
                                         @Override
                                         public void process(Message msg) {
                                             newDeviceState.deviceOrientation = msg.getData(Accelerometer.BoardOrientation.class).toString();
+                                            connectedDevices.notifyDataSetChanged();
                                         }
                                     });
                                     accelModule.enableOrientationDetection();
@@ -127,6 +149,7 @@ public class MainActivityFragment extends Fragment implements ServiceConnection 
                 connectedDevices.remove(newDeviceState);
             }
         });
+        newBoard.connect();
     }
 
     @Override
