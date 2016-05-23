@@ -98,11 +98,15 @@ public class MainActivityFragment extends Fragment implements ServiceConnection 
         final DeviceState newDeviceState= new DeviceState(btDevice);
         final MetaWearBoard newBoard= binder.getMetaWearBoard(btDevice);
 
+        newDeviceState.connecting= true;
+        connectedDevices.add(newDeviceState);
+
         stateToBoards.put(newDeviceState, newBoard);
         newBoard.setConnectionStateHandler(new MetaWearBoard.ConnectionStateHandler() {
             @Override
             public void connected() {
-                connectedDevices.add(newDeviceState);
+                newDeviceState.connecting= false;
+                connectedDevices.notifyDataSetChanged();
 
                 try {
                     newBoard.getModule(Switch.class).routeData().fromSensor().stream("switch_stream").commit()

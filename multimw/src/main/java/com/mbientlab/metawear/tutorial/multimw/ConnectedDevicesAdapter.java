@@ -36,6 +36,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
@@ -59,6 +60,8 @@ public class ConnectedDevicesAdapter extends ArrayAdapter<DeviceState> {
             viewHolder.deviceAddress= (TextView) convertView.findViewById(R.id.status_mac_address);
             viewHolder.deviceOrientation= (TextView) convertView.findViewById(R.id.status_orientation);
             viewHolder.switchState= (RadioGroup) convertView.findViewById(R.id.status_button);
+            viewHolder.connectingText= (TextView) convertView.findViewById(R.id.text_connecting);
+            viewHolder.connectingProgress= (ProgressBar) convertView.findViewById(R.id.connecting_progress);
 
             convertView.setTag(viewHolder);
         } else {
@@ -74,24 +77,41 @@ public class ConnectedDevicesAdapter extends ArrayAdapter<DeviceState> {
             viewHolder.deviceName.setText(R.string.label_unknown_device);
         }
         viewHolder.deviceAddress.setText(state.btDevice.getAddress());
-        viewHolder.deviceOrientation.setText(state.deviceOrientation);
 
-        if (state.pressed) {
-            viewHolder.switchState.check(R.id.switch_radio_pressed);
-            convertView.findViewById(R.id.switch_radio_pressed).setEnabled(true);
-            convertView.findViewById(R.id.switch_radio_released).setEnabled(false);
+        if (state.connecting) {
+            viewHolder.connectingProgress.setVisibility(View.VISIBLE);
+            viewHolder.connectingText.setVisibility(View.VISIBLE);
+            viewHolder.deviceOrientation.setVisibility(View.GONE);
+            viewHolder.switchState.setVisibility(View.GONE);
         } else {
-            viewHolder.switchState.check(R.id.switch_radio_released);
-            convertView.findViewById(R.id.switch_radio_released).setEnabled(true);
-            convertView.findViewById(R.id.switch_radio_pressed).setEnabled(false);
+            viewHolder.deviceOrientation.setVisibility(View.VISIBLE);
+            viewHolder.switchState.setVisibility(View.VISIBLE);
+
+            if (state.deviceOrientation != null) {
+                viewHolder.deviceOrientation.setText(state.deviceOrientation);
+            }
+
+            if (state.pressed) {
+                viewHolder.switchState.check(R.id.switch_radio_pressed);
+                convertView.findViewById(R.id.switch_radio_pressed).setEnabled(true);
+                convertView.findViewById(R.id.switch_radio_released).setEnabled(false);
+            } else {
+                viewHolder.switchState.check(R.id.switch_radio_released);
+                convertView.findViewById(R.id.switch_radio_released).setEnabled(true);
+                convertView.findViewById(R.id.switch_radio_pressed).setEnabled(false);
+            }
+
+            viewHolder.connectingProgress.setVisibility(View.GONE);
+            viewHolder.connectingText.setVisibility(View.GONE);
         }
 
         return convertView;
     }
 
     private class ViewHolder {
-        public TextView deviceName, deviceAddress, deviceOrientation;
+        public TextView deviceName, deviceAddress, deviceOrientation, connectingText;
         public RadioGroup switchState;
+        public ProgressBar connectingProgress;
     }
 
     public void update(DeviceState newState) {
