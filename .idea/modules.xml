@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/MetaWearTutorial-Android.iml" filepath="$PROJECT_DIR$/MetaWearTutorial-Android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/multimw/multimw.iml" filepath="$PROJECT_DIR$/multimw/multimw.iml" />
+    </modules>
+  </component>
+</project>
