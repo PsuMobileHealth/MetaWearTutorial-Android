@@ -22,8 +22,8 @@ public class CubeSurfaceView extends GLSurfaceView {
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
 
-    public void updateRotation(Quaternion newRotation) {
-        mRenderer.rotation = newRotation;
+    public void updateRotation(Quaternion value) {
+        mRenderer.quaterion = value;
     }
 
     private class CubeRenderer implements GLSurfaceView.Renderer {
@@ -37,10 +37,11 @@ public class CubeSurfaceView extends GLSurfaceView {
             gl.glLoadIdentity();
             gl.glTranslatef(0, 0, -3.0f);
 
-            float halfAngle = (float) Math.acos(rotation.w);
+            // Convert quaterion values to glRotatef compatible values
+            // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/
+            float halfAngle = (float) Math.acos(quaterion.w);
             float halfSin = (float) Math.sin(halfAngle);
-
-            gl.glRotatef((float) (halfAngle * 360f / Math.PI), rotation.x / halfSin, rotation.y / halfSin, rotation.z / halfSin);
+            gl.glRotatef((float) (halfAngle * 360f / Math.PI), quaterion.x / halfSin, quaterion.y / halfSin, quaterion.z / halfSin);
 
             gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
             gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
@@ -68,7 +69,7 @@ public class CubeSurfaceView extends GLSurfaceView {
             gl.glEnable(GL10.GL_DEPTH_TEST);
         }
         private Cube mCube;
-        public Quaternion rotation = new Quaternion(0, 1f, 0f, 0f);
+        public Quaternion quaterion = new Quaternion(0, 1f, 0f, 0f);
     }
 
     private CubeRenderer mRenderer;
