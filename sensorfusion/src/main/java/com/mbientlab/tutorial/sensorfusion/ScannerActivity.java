@@ -126,11 +126,9 @@ public class ScannerActivity extends AppCompatActivity implements ScannerCommuni
                                     })
                                     .show();
                         } else {
-                            /*
-                            Intent navActivityIntent = new Intent(ScannerActivity.this, DeviceSetupActivity.class);
-                            navActivityIntent.putExtra(DeviceSetupActivity.EXTRA_BT_DEVICE, device);
+                            Intent navActivityIntent = new Intent(ScannerActivity.this, CubeActivity.class);
+                            navActivityIntent.putExtra(CubeActivity.EXTRA_BT_DEVICE, device);
                             startActivityForResult(navActivityIntent, REQUEST_START_APP);
-                            */
                         }
                     }
 
