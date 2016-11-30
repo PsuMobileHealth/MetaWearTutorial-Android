@@ -21,6 +21,7 @@ import com.mbientlab.metawear.module.SensorFusion.AccRange;
 import com.mbientlab.metawear.module.SensorFusion.GyroRange;
 import com.mbientlab.metawear.module.SensorFusion.Mode;
 import com.mbientlab.metawear.module.SensorFusion.Quaternion;
+import com.mbientlab.metawear.module.Settings;
 
 public class CubeActivity extends AppCompatActivity implements ServiceConnection {
     public final static String EXTRA_BT_DEVICE= "com.mbientlab.tutorial.sensorfusion.CubeActivity.EXTRA_BT_DEVICE";
@@ -86,6 +87,10 @@ public class CubeActivity extends AppCompatActivity implements ServiceConnection
     public void onServiceConnected(ComponentName name, IBinder service) {
         BtleService.LocalBinder binder = (BtleService.LocalBinder) service;
         board = binder.getMetaWearBoard(btDevice);
+
+        board.getModule(Settings.class).configureConnectionParameters()
+                .maxConnectionInterval(7.5f)
+                .commit();
 
         SensorFusion sensorFusion = board.getModule(SensorFusion.class);
         sensorFusion.configure()
