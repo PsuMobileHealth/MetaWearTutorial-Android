@@ -31,6 +31,9 @@ public class CubeActivity extends AppCompatActivity implements ServiceConnection
 
     @Override
     public void onBackPressed() {
+        board.getModule(Settings.class).configureConnectionParameters()
+                .maxConnectionInterval(100f)
+                .commit();
         board.getModule(SensorFusion.class).stop();
         board.getModule(Debug.class).disconnect();
 

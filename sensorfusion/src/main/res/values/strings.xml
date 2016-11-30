@@ -24,7 +24,6 @@
 
 <resources>
     <string name="app_name">Sensor Fusion</string>
-    <string name="title_activity_scanner">ScannerActivity</string>
     <string name="title_connecting">Connecting</string>
     <string name="title_reconnect_attempt">Reconnecting</string>
     <string name="message_wait">Please wait</string>
